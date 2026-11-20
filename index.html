@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ศึกชิงดาว · ให้คะแนนกลุ่มนำเสนอ</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8ee;--card:#fff;--ink:#2b2140;--mut:#7a7090;--pri:#6c4cf1;--acc:#ff7a59;--bd:#eadfcf;--star:#ffb400;--off:#e6dccb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#17122a;--card:#241d3f;--ink:#f3eefc;--mut:#a79fc4;--pri:#9b84ff;--acc:#ff8f73;--bd:#3a3160;--off:#41386a}}
+*{box-sizing:border-box}html,body{margin:0;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Prompt,"Noto Sans Thai",system-ui,sans-serif;min-height:100%}
+main{max-width:640px;margin:0 auto;padding:16px 14px 80px}
+h1{font-size:1.5rem;margin:6px 0 2px}h2{font-size:1.1rem;margin:0 0 8px}a{color:var(--pri)}
+.sub{color:var(--mut);margin:0 0 14px;font-size:.9rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin:12px 0;box-shadow:0 4px 14px #6c4cf112}
+.tabs{display:flex;gap:6px;margin:10px 0}
+button,select,textarea,input{font:inherit;color:inherit;font-size:16px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tab,.btn{border:0;border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600}
+.tab{background:var(--off)}.tab.on{background:var(--pri);color:#fff}
+.btn{background:var(--pri);color:#fff}.btn.alt{background:var(--acc)}.btn.ghost{background:var(--off);color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;flex-wrap:wrap}
+.stars button{background:none;border:0;font-size:1.65rem;line-height:1;padding:2px;cursor:pointer;color:var(--off);min-width:38px;min-height:44px;transition:transform .15s}
+.stars button.on{color:var(--star)}.stars button:active{transform:scale(1.35)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--bd);background:none;border-radius:999px;padding:4px 10px;cursor:pointer;font-size:.85rem;min-height:38px}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.bar{height:8px;border-radius:9px;background:var(--off);overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--acc));transition:width .4s}
+.center{text-align:center;padding:30px 10px}.big{font-size:3rem}
+textarea,select,input{width:100%;border:1px solid var(--bd);background:var(--bg);border-radius:12px;padding:10px;margin:4px 0}
+.pod{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:240px;margin:14px 0}
+.pod div{flex:1;max-width:130px;border-radius:14px 14px 0 0;background:linear-gradient(var(--pri),#a98bff);color:#fff;text-align:center;padding:8px 4px;height:0;transition:height 1.4s cubic-bezier(.2,.9,.3,1.2);overflow:hidden;font-size:.85rem;font-weight:600}
+.pod .p1{background:linear-gradient(#ffb400,#ff7a59)}.pod b{display:block;font-size:1.3rem}
+.award{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--bd)}.award:last-child{border:0}
+.c{position:fixed;top:-30px;font-size:1.6rem;pointer-events:none;animation:fall 2.2s ease-in forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
+.lock{font-size:.8rem;color:var(--mut);background:var(--off);border-radius:12px;padding:8px 10px}
+.err{color:#d6336c;font-size:.9rem}
+</style>
+</head>
+<body>
+<main id="app"><div class="center"><div class="big">⏳</div>กำลังโหลด…</div></main>
+<script type="module">
+/* ===== ตั้งค่า: วางค่าจาก Firebase Console (Project settings → Your apps → Web) ===== */
+const FIREBASE_CONFIG={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT.firebaseapp.com",projectId:"YOUR_PROJECT",appId:"YOUR_APP_ID"};
+const TEACHER_EMAIL="teacher@example.com"; // อีเมลครู (ตัวพิมพ์เล็ก) ต้องตรงกับใน firestore.rules
+/* ================================================================================= */
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import{getAuth,signInAnonymously,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getFirestore,doc,collection,onSnapshot,setDoc,getDoc,getDocs,addDoc}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const CR=[['c','📚','เนื้อหา'],['k','💡','ความคิดสร้างสรรค์'],['d','🎤','การนำเสนอ'],['t','🤝','ทีมเวิร์ก']];
+const BD=[['fire','🔥','ปังมาก'],['fun','😂','ฮาสุด'],['brain','🧠','แน่นปึ้ก'],['wow','🤩','ว้าว']];
+let auth,db,uid=null,isAdmin=false,view='admin',needLogin=false,loginErr='',fatal='',loaded=false,busy=false;
+let cfg={groups:[],status:'setup',round:1},res=null,votes=[],mine={},order=[],voted=new Set(),lastR=0,unsubs=[],resSub=false;
+const LS={g(k){try{return localStorage.getItem(k)}catch(e){return null}},s(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=s=>document.querySelector(s),round=()=>cfg.round||1,own=()=>LS.g('own')||'';
+const avail=()=>order.filter(g=>g.id!==own()&&!voted.has(g.id));
+const full=id=>mine[id]&&CR.every(c=>mine[id][c[0]]);
+const touched=id=>mine[id]&&(CR.some(c=>mine[id][c[0]])||mine[id].b);
+const doneCount=()=>avail().filter(g=>full(g.id)).length;
+const complete=()=>doneCount()>0&&avail().every(g=>!touched(g.id)||full(g.id));
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function confetti(){const e=['🎉','⭐','✨','🎊','💜','🔥'];for(let i=0;i<36;i++){const s=document.createElement('span');s.className='c';s.textContent=e[i%6];s.style.left=Math.random()*100+'vw';s.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),3200)}}
+
+function compute(){const r=round(),V=votes.filter(v=>v.r===r),A={};
+ cfg.groups.forEach(g=>A[g.id]={id:g.id,name:g.name,n:0,sum:{c:0,k:0,d:0,t:0},b:{}});
+ V.forEach(v=>Object.entries(v.s||{}).forEach(([id,x])=>{const a=A[id];if(!a)return;a.n++;CR.forEach(c=>a.sum[c[0]]+=x[c[0]]||0);if(x.b)a.b[x.b]=(a.b[x.b]||0)+1}));
+ const rows=Object.values(A).map(a=>{const avg={};CR.forEach(c=>avg[c[0]]=a.n?+(a.sum[c[0]]/a.n).toFixed(2):0);
+  return{id:a.id,name:a.name,n:a.n,avg,total:a.n?+(CR.reduce((s,c)=>s+avg[c[0]],0)/4).toFixed(2):0,b:a.b}}).sort((x,y)=>y.total-x.total);
+ const awards=[];CR.forEach(c=>{const t=[...rows].sort((x,y)=>y.avg[c[0]]-x.avg[c[0]])[0];if(t&&t.n)awards.push({e:c[1],t:'เด่นด้าน'+c[2],g:t.name})});
+ BD.forEach(b=>{const t=[...rows].sort((x,y)=>(y.b[b[0]]||0)-(x.b[b[0]]||0))[0];if(t&&(t.b[b[0]]||0)>0)awards.push({e:b[1],t:'รางวัล “'+b[2]+'”',g:t.name})});
+ return{r,rows,awards,voters:V.length}}
+
+const setCfg=async p=>{cfg={...cfg,...p};await setDoc(doc(db,'config','main'),cfg)};
+async function reveal(){const s=await getDocs(collection(db,'votes'));votes=s.docs.map(d=>d.data());const o=compute();await setDoc(doc(db,'results','final'),o);res=o;await setCfg({status:'revealed',share:false})}
+async function newRound(){const r=round()+1;await setDoc(doc(db,'results','final'),{r,rows:[],awards:[],voters:0});await setCfg({status:'setup',round:r,share:false});mine={};voted=new Set()}
+const saveGroups=()=>{const names=$('#gl').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,40);return setCfg({groups:names.map((n,i)=>({id:'g'+(i+1),name:n}))})};
+async function loadVoted(){voted=new Set();try{const l=JSON.parse(LS.g('voted')||'null');if(l&&l.r===round())(l.ids||[]).forEach(i=>voted.add(i))}catch(e){}
+ try{const f=await getDoc(doc(db,'voters',uid));if(f.exists()&&f.data().r===round())(f.data().ids||[]).forEach(i=>voted.add(i))}catch(e){}render()}
+async function submit(){if(busy||!complete())return;busy=true;render();
+ const s={},ids=[];avail().forEach(g=>{if(full(g.id)){s[g.id]={...mine[g.id]};if(!s[g.id].b)delete s[g.id].b;ids.push(g.id)}});
+ try{await addDoc(collection(db,'votes'),{r:round(),s});
+  ids.forEach(i=>voted.add(i));const all=[...voted];
+  await setDoc(doc(db,'voters',uid),{r:round(),ids:all});
+  LS.s('voted',JSON.stringify({r:round(),ids:all}));ids.forEach(i=>delete mine[i]);confetti()}catch(e){alert('ส่งโหวตไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่')}
+ busy=false;render()}
+
+function stars(id,k,v){return '<span class="stars">'+[1,2,3,4,5].map(n=>`<button data-st="${id}|${k}|${n}" class="${n<=v?'on':''}" aria-label="${n} ดาว">★</button>`).join('')+'</span>'}
+
+function voterHTML(){
+ if(cfg.status==='setup'||!cfg.groups.length)return'<div class="card center"><div class="big">🛠️</div>ครูกำลังเตรียมกลุ่มนำเสนอ รอสักครู่นะ</div>';
+ if(cfg.status==='revealed')return cfg.share&&res&&res.r===round()?resultHTML():'<div class="card center"><div class="big">🎉</div><h2>จบการโหวตแล้ว</h2>ขอบคุณที่ร่วมให้ดาวนะ</div>';
+ if(cfg.status==='closed')return'<div class="card center"><div class="big">🥁</div><h2>ปิดโหวตแล้ว</h2>กำลังลุ้นผลคะแนน…</div>';
+ if(!order.length)order=shuffle(cfg.groups);
+ if(!avail().length)return'<div class="card center"><div class="big">✅</div><h2>ส่งโหวตเรียบร้อย</h2>คะแนนของคุณถูกเก็บแบบไม่ระบุตัวตน<br>รอครูเปิดเผยผลนะ</div>';
+ const tot=order.filter(g=>g.id!==own()).length,pct=Math.round((voted.size+doneCount())/Math.max(1,tot)*100);
+ let h=`<div class="card"><div class="lock">🔒 ใบโหวตไม่มีชื่อ/รหัสผู้ใช้/เวลา · ลำดับกลุ่มสลับสุ่มให้แต่ละคน<br>ให้ดาวได้หลายกลุ่มพร้อมกัน จะส่งทีเดียวหรือทยอยส่งก็ได้</div>
+ <p style="margin:10px 0 4px"><b>กลุ่มของฉัน</b> (จะข้ามให้ · เก็บในเครื่องคุณเท่านั้น)</p>
+ <select id="own"><option value="">— ไม่ได้อยู่กลุ่มไหน —</option>${cfg.groups.map(g=>`<option value="${g.id}" ${own()===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select>
+ <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+ order.forEach(g=>{if(g.id===own()||voted.has(g.id))return;const m=mine[g.id]||{};
+  h+=`<div class="card"><h2>${esc(g.name)}</h2>${CR.map(c=>`<div class="row"><span>${c[1]} ${c[2]}</span>${stars(g.id,c[0],m[c[0]]||0)}</div>`).join('')}
+  <div class="chips">${BD.map(b=>`<button class="chip ${m.b===b[0]?'on':''}" data-bd="${g.id}|${b[0]}">${b[1]} ${b[2]}</button>`).join('')}</div></div>`});
+ return h+`<button class="btn alt" id="send" style="width:100%;padding:14px" ${complete()&&!busy?'':'disabled'}>🚀 ส่งดาวแบบไม่ระบุชื่อ (${doneCount()}/${avail().length})</button>`}
+
+function resultHTML(){const rows=res.rows||[],top=rows.slice(0,3);
+ if(!rows.some(g=>g.n))return'<div class="card center"><div class="big">🤷</div>ยังไม่มีใครส่งโหวตในรอบนี้</div>';
+ const pod=[top[1],top[0],top[2]].map((g,i)=>g?`<div class="${i===1?'p1':''}" data-h="${[170,230,120][i]}"><span>${['🥈','🥇','🥉'][i]}</span><br>${esc(g.name)}<b data-n="${g.total}">0.00</b></div>`:'').join('');
+ return`<div class="card"><h2>🏆 ผลการโหวต</h2><p class="sub">จากผู้โหวต ${res.voters} คน (ไม่ระบุตัวตน)</p><div class="pod">${pod}</div></div>
+ <div class="card"><h2>🎖️ รางวัลพิเศษ</h2>${(res.awards||[]).map(a=>`<div class="award"><span style="font-size:1.6rem">${a.e}</span><span><b>${esc(a.g)}</b><br><small style="color:var(--mut)">${a.t}</small></span></div>`).join('')||'ยังไม่มีข้อมูล'}</div>
+ <div class="card"><h2>📊 คะแนนทุกกลุ่ม</h2>${rows.map((g,i)=>`<div class="row"><span>${i+1}. ${esc(g.name)}</span><b>${g.total.toFixed(2)}</b></div>`).join('')}</div>`}
+
+function adminHTML(){const st=cfg.status,n=votes.filter(v=>v.r===round()).length,B=(a,l,c='')=>`<button class="btn ${c}" data-a="${a}">${l}</button>`;
+ return`<div class="card"><h2>👩‍🏫 แผงควบคุมครู · รอบที่ ${round()}</h2>
+ <p class="sub">สถานะ: <b>${{setup:'เตรียมกลุ่ม',open:'กำลังโหวต',closed:'ปิดโหวต',revealed:'เปิดเผยผลแล้ว'}[st]}</b> · มีผู้โหวตแล้ว <b>${n}</b> ใบ</p>
+ <textarea id="gl" rows="6" placeholder="ชื่อกลุ่ม 1 บรรทัดต่อ 1 กลุ่ม">${esc(cfg.groups.map(g=>g.name).join('\n'))}</textarea>
+ <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">${B('save','💾 บันทึกกลุ่ม','ghost')}
+ ${st==='setup'?B('open','▶️ เปิดโหวต'):''}${st==='open'?B('close','⏹️ ปิดโหวต','alt'):''}${st==='closed'?B('reveal','🎬 เปิดเผยผล','alt')+B('open','↩︎ เปิดโหวตต่อ','ghost'):''}
+ ${st==='revealed'?B('share',cfg.share?'🙈 ซ่อนผลจากนักเรียน':'📣 แชร์ผลให้นักเรียน','alt')+B('new','🔄 เริ่มรอบใหม่','ghost'):''}</div>
+ <p class="lock" style="margin-top:12px">ใบโหวตแต่ละใบไม่มีชื่อผู้โหวต · ผลรวมจะแสดงเมื่อกด “เปิดเผยผล”</p>
+ <div style="display:flex;gap:8px;margin-top:10px">${B('copy','📋 คัดลอกลิงก์นักเรียน','ghost')}${B('out','ออกจากระบบ','ghost')}</div></div>${st==='revealed'&&res&&res.r===round()?resultHTML():''}`}
+
+function loginHTML(){return`<div class="card"><h2>🔑 เข้าสู่ระบบครู</h2><input id="em" type="email" placeholder="อีเมลครู" autocomplete="username"><input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password">
+ <p class="err">${esc(loginErr)}</p><button class="btn" data-a="login" style="width:100%">เข้าสู่ระบบ</button></div>`}
+
+function render(){
+ const app=$('#app');
+ if(fatal){app.innerHTML=`<div class="card center"><div class="big">⚠️</div><p>${esc(fatal)}</p></div>`;return}
+ if(needLogin){app.innerHTML='<h1>⭐ ศึกชิงดาว</h1>'+loginHTML();return}
+ if(!loaded){app.innerHTML='<div class="center"><div class="big">⏳</div>กำลังเชื่อมต่อ…<br><small>ถ้านานเกิน 10 วินาที ลองรีเฟรชหน้านี้</small></div>';return}
+ const act=document.activeElement;if(act&&act.id==='gl')return;
+ let h='<h1>⭐ ศึกชิงดาว</h1><p class="sub">ให้คะแนนกลุ่มนำเสนอ · ไม่เปิดเผยตัวตน</p>';
+ if(isAdmin)h+=`<div class="tabs"><button class="tab ${view==='admin'?'on':''}" data-v="admin">ครู</button><button class="tab ${view==='student'?'on':''}" data-v="student">ดูแบบนักเรียน</button></div>`;
+ h+=(isAdmin&&view==='admin')?adminHTML():voterHTML();
+ if(!isAdmin)h+='<p class="sub" style="text-align:center"><a href="#teacher">สำหรับครู</a></p>';
+ app.innerHTML=h;
+ document.querySelectorAll('.pod div').forEach(d=>setTimeout(()=>d.style.height=d.dataset.h+'px',100));
+ document.querySelectorAll('.pod b').forEach(b=>{const t=+b.dataset.n,t0=performance.now();(function f(now){const p=Math.min(1,(now-t0)/1400);b.textContent=(t*p).toFixed(2);if(p<1)requestAnimationFrame(f)})(t0)})}
+
+document.addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.v){view=t.dataset.v;return render()}
+ if(t.dataset.st){const[id,k,n]=t.dataset.st.split('|');(mine[id]=mine[id]||{})[k]=+n;return render()}
+ if(t.dataset.bd){const[id,b]=t.dataset.bd.split('|');const m=mine[id]=mine[id]||{};m.b=m.b===b?null:b;return render()}
+ if(t.id==='send')return submit();
+ const a=t.dataset.a;if(!a)return;if(document.activeElement)document.activeElement.blur();
+ try{
+  if(a==='login'){loginErr='';try{await signInWithEmailAndPassword(auth,$('#em').value.trim().toLowerCase(),$('#pw').value)}catch(x){loginErr='อีเมลหรือรหัสผ่านไม่ถูกต้อง';render()}return}
+  if(a==='out'){history.replaceState(null,'',location.pathname);await signOut(auth);location.reload();return}
+  if(a==='copy'){const u=location.origin+location.pathname;try{await navigator.clipboard.writeText(u);t.textContent='✅ คัดลอกแล้ว'}catch(x){prompt('คัดลอกลิงก์นี้',u)}return}
+  if(a==='save')await saveGroups();
+  if(a==='open'){await saveGroups();order=[];await setCfg({status:'open'})}
+  if(a==='close')await setCfg({status:'closed'});
+  if(a==='reveal')await reveal();
+  if(a==='new')await newRound();
+  if(a==='share')await setCfg({share:!cfg.share});
+ }catch(x){alert('ทำรายการไม่สำเร็จ: '+(x.code||x.message))}
+ render()});
+document.addEventListener('change',e=>{if(e.target.id==='own'){LS.s('own',e.target.value);render()}});
+addEventListener('hashchange',()=>location.reload());
+
+function subRes(){if(resSub)return;resSub=true;unsubs.push(onSnapshot(doc(db,'results','final'),s=>{res=s.exists()?s.data():null;render()},()=>{resSub=false}))}
+function start(){unsubs.forEach(f=>f());unsubs=[];resSub=false;loaded=false;lastR=0;
+ unsubs.push(onSnapshot(doc(db,'config','main'),s=>{loaded=true;if(s.exists())cfg={groups:[],status:'setup',round:1,...s.data()};
+  if(round()!==lastR){lastR=round();loadVoted()}if(isAdmin||cfg.share)subRes();render()},()=>{fatal='อ่านข้อมูลไม่ได้ ตรวจสอบกฎ Firestore และการเชื่อมต่อ';render()}));
+ if(isAdmin)unsubs.push(onSnapshot(collection(db,'votes'),s=>{votes=s.docs.map(d=>d.data());render()},()=>{}));
+ render()}
+
+if(FIREBASE_CONFIG.apiKey.startsWith('YOUR')){fatal='ยังไม่ได้ตั้งค่า Firebase: เปิดไฟล์ index.html แล้วแก้ FIREBASE_CONFIG ตามคู่มือ';render()}
+else{
+ const app=initializeApp(FIREBASE_CONFIG);auth=getAuth(app);db=getFirestore(app);
+ onAuthStateChanged(auth,async u=>{
+  if(!u){if(location.hash==='#teacher'){needLogin=true;render();return}try{await signInAnonymously(auth)}catch(e){fatal='เปิดใช้ Anonymous sign-in ใน Firebase Authentication หรือยัง?';render()}return}
+  uid=u.uid;isAdmin=!u.isAnonymous&&(u.email||'').toLowerCase()===TEACHER_EMAIL;
+  if(location.hash==='#teacher'&&!isAdmin){needLogin=true;render();if(!u.isAnonymous)await signOut(auth);return}
+  needLogin=false;start()})}
+</script>
+</body>
+</html>
