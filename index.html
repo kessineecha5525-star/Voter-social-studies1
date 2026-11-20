@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClassVote | โหวตการนำเสนองานกลุ่ม</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap');
+:root{--ink:#20234a;--muted:#747997;--purple:#7057e8;--pink:#f36ca5;--cyan:#38bfd0;--gold:#ffbd45;--bg:#f4f5ff;--white:#fff;--line:#e9e9f5;--green:#27b889}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 8% 5%,#e9e5ff 0,transparent 28%),radial-gradient(circle at 95% 15%,#ffe8f1 0,transparent 25%),var(--bg);font-family:'Prompt',sans-serif;color:var(--ink);min-height:100vh}
+button,input{font:inherit}button{cursor:pointer;border:0}.app{max-width:1120px;margin:auto;padding:22px 18px 50px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:11px}.logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--purple),#a28cff);display:grid;place-items:center;color:white;font-size:25px;box-shadow:0 8px 20px #7057e844}.brand h1{font-size:21px;margin:0;font-weight:700}.brand small{color:var(--muted);display:block;font-size:12px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{padding:10px 16px;border-radius:13px;font-weight:600;transition:.2s}.btn:hover{transform:translateY(-2px)}.primary{background:linear-gradient(135deg,var(--purple),#9279ff);color:white;box-shadow:0 7px 16px #7057e833}.light{background:white;color:var(--ink);border:1px solid var(--line)}.danger{background:#fff0f2;color:#d84e69}.small{padding:7px 11px;font-size:13px}
+.hero{background:linear-gradient(115deg,#6653db,#9074f4 58%,#b18cf5);color:white;padding:28px;border-radius:25px;position:relative;overflow:hidden;box-shadow:0 14px 32px #725de833;margin-bottom:20px}.hero:after{content:"★";position:absolute;right:7%;top:-35px;font-size:180px;color:#ffffff16;transform:rotate(15deg)}.hero h2{font-size:clamp(24px,4vw,34px);margin:0 0 7px;position:relative;z-index:1}.hero p{margin:0;opacity:.9;position:relative;z-index:1}.pill{display:inline-flex;background:#ffffff25;border:1px solid #ffffff44;border-radius:30px;padding:5px 11px;font-size:12px;margin-bottom:12px}
+.tabs{display:flex;gap:8px;margin:0 0 18px;flex-wrap:wrap}.tab{background:white;border:1px solid var(--line);padding:10px 16px;border-radius:12px;color:var(--muted);font-weight:600}.tab.active{background:var(--ink);color:white;border-color:var(--ink)}
+.panel{background:white;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 8px 25px #31336b0a}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px;flex-wrap:wrap}.section-head h3{margin:0;font-size:20px}.muted{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.group{border:1px solid var(--line);border-radius:18px;padding:17px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fff,#fbfaff);transition:.2s}.group:hover{transform:translateY(-3px);box-shadow:0 10px 24px #4d3ca818}.group.selected{border:2px solid var(--purple);background:#f7f4ff}.group-top{display:flex;align-items:center;justify-content:space-between}.group-icon{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:23px;background:#eeeaff}.group h4{font-size:18px;margin:12px 0 3px}.group p{font-size:12px;color:var(--muted);margin:0}.choose{margin-top:14px;width:100%;border-radius:11px;padding:10px;background:#f0edff;color:var(--purple);font-weight:600}.selected .choose{background:var(--purple);color:white}
+.vote-area{margin-top:18px;display:none;animation:rise .35s ease}.vote-area.show{display:block}.vote-box{background:#fbfaff;border:1px dashed #c9c0ff;border-radius:18px;padding:20px;text-align:center}.vote-box h3{margin:0 0 5px}.stars{display:flex;justify-content:center;gap:8px;margin:15px 0}.star{font-size:38px;background:transparent;color:#d9d9e6;padding:2px;transition:.15s}.star.on,.star:hover{color:var(--gold);transform:scale(1.13)}.rating-label{font-weight:600;color:var(--purple);min-height:24px}.submit{margin-top:12px;min-width:190px}
+.notice{padding:12px 14px;background:#f0faff;border:1px solid #d8f2fa;color:#397b8b;border-radius:13px;font-size:13px;margin-top:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:17px}.stat{padding:16px;border-radius:16px;background:#f8f7ff;border:1px solid var(--line)}.stat strong{font-size:25px;display:block}.stat span{font-size:12px;color:var(--muted)}
+.result-row{display:grid;grid-template-columns:54px 1fr 105px;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.rank{width:42px;height:42px;border-radius:14px;background:#f0edff;display:grid;place-items:center;font-weight:700;color:var(--purple)}.bar-bg{height:10px;background:#efeff7;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--purple),var(--pink));transition:width .6s}.score{text-align:right;font-weight:700}.score small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.hidden{display:none!important}.teacher-wrap{max-width:720px;margin:25px auto}.field{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:7px 0 13px;outline:none}.field:focus{border-color:var(--purple);box-shadow:0 0 0 3px #7057e81a}.label{font-size:13px;font-weight:600}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.group-edit{display:flex;gap:8px;align-items:center}.group-edit input{margin:5px 0}.toggleline{display:flex;align-items:center;gap:10px;margin:13px 0;font-size:14px}.toggleline input{width:18px;height:18px;accent-color:var(--purple)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:#25264c;color:white;padding:12px 18px;border-radius:14px;opacity:0;pointer-events:none;transition:.25s;z-index:20;box-shadow:0 8px 25px #0002}.toast.show{opacity:1;transform:translate(-50%,0)}.success{text-align:center;padding:35px 15px}.success .emoji{font-size:65px;animation:bounce 1.2s infinite}.success h2{margin:8px 0}.podium{display:flex;align-items:end;justify-content:center;gap:10px;margin:24px auto 10px;max-width:560px}.pod{flex:1;text-align:center;border-radius:15px 15px 6px 6px;padding:12px 5px;background:#f2efff}.pod.first{height:145px;background:#fff3d9}.pod.second{height:115px;background:#f0f2f8}.pod.third{height:95px;background:#ffede5}.pod b{font-size:23px;display:block}.pod span{font-size:12px;display:block;margin-top:5px}.footer{text-align:center;color:#9a9cb2;font-size:11px;margin-top:25px}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes bounce{50%{transform:translateY(-8px)}}@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app{padding:15px 12px 35px}.hero{padding:22px}.panel{padding:16px}.brand h1{font-size:18px}}@media(max-width:480px){.grid{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.result-row{grid-template-columns:42px 1fr 82px;gap:8px}.brand small{font-size:10px}.top-actions .btn{padding:8px 10px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div class="logo">★</div><div><h1>ClassVote</h1><small>โหวตคะแนนการนำเสนองานกลุ่ม</small></div></div>
+ <div class="top-actions"><button class="btn light" onclick="showStudent()">👩‍🎓 หน้านักเรียน</button><button class="btn primary" onclick="showTeacher()">🔐 สำหรับครู</button></div>
+</header>
+<section class="hero">
+ <div class="pill">✦ CLASSROOM INTERACTIVE ✦</div>
+ <h2>เวทีแห่งไอเดีย…ใครจะคว้าดาวไปครอง?</h2>
+ <p>ร่วมส่งกำลังใจและให้คะแนนผลงานการนำเสนอของเพื่อน ๆ อย่างสร้างสรรค์</p>
+</section>
+
+<main id="studentView">
+ <div class="tabs"><button class="tab active" id="voteTab" onclick="studentTab('vote')">🗳️ ร่วมโหวต</button><button class="tab" id="resultTab" onclick="studentTab('result')">🏆 ผลคะแนน</button></div>
+ <section id="votePanel" class="panel">
+  <div class="section-head"><div><h3>เลือกกลุ่มที่ต้องการให้คะแนน</h3><div class="muted">เลือกกลุ่ม แล้วมอบดาว 1–5 ดวงตามความประทับใจ</div></div><span class="pill" style="background:#f0edff;color:#7057e8;border-color:#e4defe">ไม่ต้องระบุชื่อ</span></div>
+  <div class="grid" id="groupGrid"></div>
+  <div class="vote-area" id="voteArea"><div class="vote-box"><h3 id="selectedName">กลุ่มที่เลือก</h3><div class="muted">ให้คะแนนภาพรวมการนำเสนอ</div>
+   <div class="stars" id="stars"></div><div class="rating-label" id="ratingLabel">เลือกจำนวนดาวที่ต้องการให้</div>
+   <button class="btn primary submit" onclick="submitVote()">ส่งคะแนนของฉัน ✨</button>
+   <div class="muted" style="margin-top:10px">เมื่อส่งแล้ว จะไม่สามารถโหวตซ้ำจากเบราว์เซอร์นี้ได้</div>
+  </div></div>
+  <div class="notice">💜 โปรดให้คะแนนอย่างสุภาพและเป็นธรรม พิจารณาจากเนื้อหา ความคิดสร้างสรรค์ และการสื่อสารของแต่ละกลุ่ม</div>
+ </section>
+ <section id="studentResult" class="panel hidden">
+  <div class="section-head"><div><h3>🏆 ตารางคะแนนของห้องเรียน</h3><div class="muted" id="publishText">ผลคะแนนรวมจากการโหวต</div></div><span class="pill" style="background:#e9fbf5;color:#218b6b;border-color:#d6f4e9">คะแนนรวม</span></div>
+  <div id="publicResults"></div>
+  <div id="notPublished" class="notice hidden">🔒 คุณครูยังไม่เปิดเผยผลคะแนน รอติดตามประกาศผลพร้อมกันนะคะ</div>
+ </section>
+</main>
+
+<section id="teacherLogin" class="panel teacher-wrap hidden">
+ <h3 style="margin-top:0">🔐 เข้าสู่ระบบคุณครู</h3><p class="muted">กรอกรหัส PIN เพื่อดูผลคะแนนและตั้งค่าการโหวต</p>
+ <label class="label">รหัส PIN</label><input id="pinInput" class="field" type="password" inputmode="numeric" placeholder="ค่าเริ่มต้น 2468" maxlength="12">
+ <button class="btn primary" style="width:100%" onclick="login()">เข้าสู่หน้าครู</button>
+ <div class="muted" style="margin-top:10px">ควรเปลี่ยน PIN ก่อนใช้งานจริง</div>
+</section>
+
+<section id="teacherView" class="hidden">
+ <div class="tabs"><button class="tab active" id="dashTab" onclick="teacherTab('dash')">📊 ภาพรวม</button><button class="tab" id="settingTab" onclick="teacherTab('settings')">⚙️ ตั้งค่า</button></div>
+ <section id="dashPanel" class="panel">
+  <div class="section-head"><div><h3>📊 Dashboard คะแนนโหวต</h3><div class="muted">ข้อมูลคะแนนรวมภายในเบราว์เซอร์นี้</div></div><button class="btn light small" onclick="exportCSV()">⬇ Export CSV</button></div>
+  <div class="stats"><div class="stat"><strong id="totalVotes">0</strong><span>จำนวนการโหวต</span></div><div class="stat"><strong id="groupCount">0</strong><span>จำนวนกลุ่ม</span></div><div class="stat"><strong id="topScore">–</strong><span>คะแนนเฉลี่ยสูงสุด</span></div></div>
+  <div id="teacherResults"></div>
+  <div class="notice">🔒 หน้านี้แสดงผลคะแนนและสถิติสำหรับครูเท่านั้นในระดับหน้าจอของแอป</div>
+ </section>
+ <section id="settingsPanel" class="panel hidden">
+  <h3 style="margin-top:0">⚙️ ตั้งค่าห้องเรียน</h3>
+  <label class="label">ชื่อกิจกรรม</label><input id="activityName" class="field" placeholder="เช่น โหวตการนำเสนองาน เรื่องอาเซียน">
+  <label class="label">รายชื่อกลุ่ม (แก้ไขชื่อได้ทีละกลุ่ม)</label><div id="groupEditors"></div>
+  <button class="btn light small" onclick="addGroup()">＋ เพิ่มกลุ่ม</button>
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <label class="toggleline"><input type="checkbox" id="publishToggle" onchange="togglePublish()"> เปิดเผยผลคะแนนให้นักเรียนเห็น</label>
+  <label class="label">เปลี่ยนรหัส PIN ครู</label><input id="newPin" class="field" type="password" inputmode="numeric" placeholder="กำหนด PIN ใหม่">
+  <div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn primary" onclick="saveSettings()">บันทึกการตั้งค่า</button><button class="btn danger" onclick="resetVotes()">ล้างคะแนนทั้งหมด</button><button class="btn light" onclick="logout()">ออกจากระบบครู</button></div>
+  <div class="notice">หมายเหตุ: การล้างคะแนนไม่สามารถกู้คืนได้ และการเปลี่ยนกลุ่มหลังเริ่มโหวตอาจทำให้ข้อมูลเดิมไม่ตรงกับกลุ่มใหม่</div>
+ </section>
+</section>
+<div class="footer">ClassVote • ออกแบบเพื่อการเรียนรู้และการให้ข้อเสนอแนะอย่างสร้างสรรค์</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='classvote_data_v1', VOTED='classvote_voted_v1';
+const icons=['🚀','🌈','💡','🎨','🌟','🦋','🔥','🎯','🌻','🪄'];
+let data=loadData(), selected=null, rating=0, teacherUnlocked=false, current='student';
+function defaultData(){return {activity:'โหวตการนำเสนองานกลุ่ม',pin:'2468',published:false,groups:['กลุ่มที่ 1','กลุ่มที่ 2','กลุ่มที่ 3','กลุ่มที่ 4','กลุ่มที่ 5','กลุ่มที่ 6'].map((name,i)=>({id:'g'+(i+1),name,votes:[]}))}}
+function loadData(){try{let d=JSON.parse(localStorage.getItem(KEY));return d&&Array.isArray(d.groups)?d:defaultData()}catch(e){return defaultData()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function voted(){return localStorage.getItem(VOTED)==='yes'}
+function toast(t){let el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500)}
+function showOnly(id){['studentView','teacherLogin','teacherView'].forEach(x=>document.getElementById(x).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+function showStudent(){current='student';teacherUnlocked=false;showOnly('studentView');studentTab('vote');renderStudent()}
+function showTeacher(){current='teacher';showOnly(teacherUnlocked?'teacherView':'teacherLogin');if(teacherUnlocked)renderTeacher()}
+function studentTab(t){document.getElementById('votePanel').classList.toggle('hidden',t!=='vote');document.getElementById('studentResult').classList.toggle('hidden',t!=='result');document.getElementById('voteTab').classList.toggle('active',t==='vote');document.getElementById('resultTab').classList.toggle('active',t==='result');if(t==='result')renderPublic()}
+function teacherTab(t){document.getElementById('dashPanel').classList.toggle('hidden',t!=='dash');document.getElementById('settingsPanel').classList.toggle('hidden',t!=='settings');document.getElementById('dashTab').classList.toggle('active',t==='dash');document.getElementById('settingTab').classList.toggle('active',t==='settings');if(t==='dash')renderTeacher();else renderSettings()}
+function renderStudent(){
+ document.querySelector('.hero h2').textContent=data.activity||'เวทีแห่งไอเดีย…ใครจะคว้าดาวไปครอง?';
+ const grid=document.getElementById('groupGrid');grid.innerHTML='';
+ data.groups.forEach((g,i)=>{let card=document.createElement('div');card.className='group'+(selected===g.id?' selected':'');card.innerHTML=`<div class="group-top"><div class="group-icon">${icons[i%icons.length]}</div><span class="muted">TEAM ${String(i+1).padStart(2,'0')}</span></div><h4></h4><p>พร้อมรับคะแนนจากเพื่อน ๆ</p><button class="choose">${selected===g.id?'✓ เลือกกลุ่มนี้แล้ว':'เลือกกลุ่มนี้'}</button>`;card.querySelector('h4').textContent=g.name;card.querySelector('button').onclick=()=>selectGroup(g.id);grid.appendChild(card)});
+ if(voted()){document.getElementById('voteArea').classList.remove('show');document.getElementById('voteArea').innerHTML='<div class="vote-box success"><div class="emoji">💌</div><h2>ขอบคุณที่ร่วมโหวต!</h2><p class="muted">บันทึกคะแนนของคุณแล้ว ผลงานดี ๆ เริ่มต้นจากกำลังใจเล็ก ๆ</p><button class="btn light" onclick="studentTab(&quot;result&quot;)">ดูผลคะแนนที่เปิดเผย</button></div>'}
+}
+function selectGroup(id){if(voted()){toast('คุณส่งคะแนนไปแล้ว');return}selected=id;rating=0;document.getElementById('voteArea').classList.add('show');let g=data.groups.find(x=>x.id===id);document.getElementById('selectedName').textContent=g.name;renderStars();renderStudent();document.getElementById('voteArea').classList.add('show');document.getElementById('voteArea').scrollIntoView({behavior:'smooth',block:'center'})}
+function renderStars(){let s=document.getElementById('stars');s.innerHTML='';for(let i=1;i<=5;i++){let b=document.createElement('button');b.className='star'+(i<=rating?' on':'');b.textContent='★';b.setAttribute('aria-label',i+' ดาว');b.onclick=()=>{rating=i;renderStars()};s.appendChild(b)}document.getElementById('ratingLabel').textContent=rating?['','ต้องพัฒนา','พอใช้','ดี','ดีมาก','ยอดเยี่ยม'][rating]+' • '+rating+'/5 ดาว':'เลือกจำนวนดาวที่ต้องการให้'}
+function submitVote(){if(voted()){toast('เบราว์เซอร์นี้ส่งคะแนนแล้ว');return}if(!selected||!rating){toast('กรุณาเลือกกลุ่มและจำนวนดาวก่อนค่ะ');return}let g=data.groups.find(x=>x.id===selected);if(!g)return;g.votes.push({score:rating,time:new Date().toISOString()});save();localStorage.setItem(VOTED,'yes');selected=null;toast('ส่งคะแนนเรียบร้อย ขอบคุณค่ะ ✨');renderStudent()}
+function stats(g){let n=g.votes.length,sum=g.votes.reduce((a,v)=>a+Number(v.score),0);return {n,avg:n?sum/n:0,sum}}
+function sorted(){return [...data.groups].map(g=>({...g,stat:stats(g)})).sort((a,b)=>b.stat.avg-a.stat.avg||b.stat.n-a.stat.n)}
+function renderPublic(){let box=document.getElementById('publicResults');box.innerHTML='';if(!data.published){document.getElementById('notPublished').classList.remove('hidden');return}document.getElementById('notPublished').classList.add('hidden');let arr=sorted(),max=Math.max(1,...arr.map(g=>g.stat.avg));arr.forEach((g,i)=>{let row=document.createElement('div');row.className='result-row';row.innerHTML=`<div class="rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div><div><b></b><div class="bar-bg"><div class="bar" style="width:${g.stat.avg/5*100}%"></div></div></div><div class="score">${g.stat.avg.toFixed(2)} / 5<small>${g.stat.n} คะแนน</small></div>`;row.querySelector('b').textContent=g.name;box.appendChild(row)});document.getElementById('publishText').textContent='ผลคะแนนรวมที่คุณครูอนุญาตให้แสดง'}
+function login(){if(document.getElementById('pinInput').value===data.pin){teacherUnlocked=true;document.getElementById('pinInput').value='';showOnly('teacherView');teacherTab('dash');toast('เข้าสู่ระบบสำเร็จ')}else toast('รหัส PIN ไม่ถูกต้อง')}
+function logout(){teacherUnlocked=false;showOnly('teacherLogin');toast('ออกจากระบบแล้ว')}
+function renderTeacher(){let arr=sorted(),total=data.groups.reduce((a,g)=>a+g.votes.length,0),top=arr.length?arr[0].stat.avg:0;document.getElementById('totalVotes').textContent=total;document.getElementById('groupCount').textContent=data.groups.length;document.getElementById('topScore').textContent=total?top.toFixed(2)+'/5':'–';let box=document.getElementById('teacherResults');box.innerHTML='';arr.forEach((g,i)=>{let r=document.createElement('div');r.className='result-row';let dist=[1,2,3,4,5].map(n=>g.votes.filter(v=>Number(v.score)===n).length);r.innerHTML=`<div class="rank">${i+1}</div><div><b></b><div class="bar-bg"><div class="bar" style="width:${g.stat.avg/5*100}%"></div></div><small class="muted">1★ ${dist[0]} · 2★ ${dist[1]} · 3★ ${dist[2]} · 4★ ${dist[3]} · 5★ ${dist[4]}</small></div><div class="score">${g.stat.avg.toFixed(2)} / 5<small>${g.stat.n} โหวต</small></div>`;r.querySelector('b').textContent=g.name;box.appendChild(r)})}
+function renderSettings(){document.getElementById('activityName').value=data.activity;document.getElementById('publishToggle').checked=data.published;let box=document.getElementById('groupEditors');box.innerHTML='';data.groups.forEach((g,i)=>{let line=document.createElement('div');line.className='group-edit';let inp=document.createElement('input');inp.className='field';inp.value=g.name;inp.setAttribute('aria-label','ชื่อกลุ่ม '+(i+1));inp.oninput=()=>{g.name=inp.value};let del=document.createElement('button');del.className='btn danger small';del.textContent='ลบ';del.onclick=()=>{if(data.groups.length<=1){toast('ต้องมีอย่างน้อย 1 กลุ่ม');return}if(confirm('ลบกลุ่มนี้ใช่หรือไม่?')){data.groups=data.groups.filter(x=>x.id!==g.id);save();renderSettings()}};line.append(inp,del);box.appendChild(line)})}
+function addGroup(){if(data.groups.length>=20){toast('เพิ่มได้สูงสุด 20 กลุ่ม');return}data.groups.push({id:'g'+Date.now(),name:'กลุ่มที่ '+(data.groups.length+1),votes:[]});renderSettings()}
+function saveSettings(){data.activity=document.getElementById('activityName').value.trim()||'โหวตการนำเสนองานกลุ่ม';data.groups.forEach((g,i)=>{if(!g.name.trim())g.name='กลุ่มที่ '+(i+1)});let p=document.getElementById('newPin').value.trim();if(p){if(p.length<4){toast('PIN ควรมีอย่างน้อย 4 ตัว');return}data.pin=p;document.getElementById('newPin').value=''}data.published=document.getElementById('publishToggle').checked;save();renderSettings();toast('บันทึกการตั้งค่าแล้ว')}
+function togglePublish(){data.published=document.getElementById('publishToggle').checked;save();toast(data.published?'เปิดเผยผลคะแนนแล้ว':'ซ่อนผลคะแนนจากนักเรียนแล้ว')}
+function resetVotes(){if(!confirm('ยืนยันล้างคะแนนโหวตทั้งหมด? การกระทำนี้ย้อนกลับไม่ได้'))return;data.groups.forEach(g=>g.votes=[]);localStorage.removeItem(VOTED);save();renderTeacher();toast('ล้างคะแนนทั้งหมดแล้ว')}
+function exportCSV(){let rows=[['กลุ่ม','จำนวนโหวต','คะแนนเฉลี่ย','คะแนน 1 ดาว','คะแนน 2 ดาว','คะแนน 3 ดาว','คะแนน 4 ดาว','คะแนน 5 ดาว']];data.groups.forEach(g=>{let s=stats(g);rows.push([g.name,s.n,s.avg.toFixed(2),... [1,2,3,4,5].map(n=>g.votes.filter(v=>Number(v.score)===n).length)])});let csv='\\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\\r\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='classvote-results.csv';a.click();URL.revokeObjectURL(a.href)}
+renderStudent();
+</script>
+</body></html>
